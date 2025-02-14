@@ -29,6 +29,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
 
   const [preview, setPreview] = React.useState<string | null>(initialValues?.image || null);
 
+  // Функция для сжатия изображения через canvas
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -37,8 +38,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
         const img = new Image();
         img.src = reader.result as string;
         img.onload = () => {
-          /* Здесь принял решение использовать canvas для сжатия, иначе на сервере bad request, слишком большой размер тела запроса */ 
-          const canvas = document.createElement("canvas"); 
+          const canvas = document.createElement("canvas");
           const MAX_WIDTH = 600;
           let width = img.width;
           let height = img.height;
@@ -63,7 +63,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
     });
   };
 
-  // Загрузка изображения
+  // Перед загрузкой изображения сжимаем его
   const beforeUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) {
       message.error("Можно загрузить только изображение!");
@@ -77,7 +77,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
       console.error(error);
       message.error("Ошибка обработки изображения");
     }
-    return false;
+    return false; // предотвратить автоматическую загрузку
   };
 
   const onFinish = (values: Step1FormInputs) => {
@@ -102,8 +102,8 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
           <Option value="Услуги">Услуги</Option>
         </Select>
       </Form.Item>
-      <Form.Item name="image" style={{ display: "none" }}>
-        <Input />
+
+      <Form.Item name="image" style={{ display: "none" }}><Input />
       </Form.Item>
       <Form.Item label="Фото (необязательно)">
         <Upload beforeUpload={beforeUpload} maxCount={1} showUploadList={false}>
@@ -118,9 +118,14 @@ const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }
       <Form.Item>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <Button onClick={onCancel}>Отмена</Button>
-          <Button type="primary" htmlType="submit">
-            Далее
-          </Button>
+          <div>
+            <Button onClick={() => form.resetFields()} style={{ marginRight: 10 }}>
+              Очистить форму
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Далее
+            </Button>
+          </div>
         </div>
       </Form.Item>
     </Form>

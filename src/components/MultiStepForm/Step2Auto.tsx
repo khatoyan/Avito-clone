@@ -1,7 +1,6 @@
-import React from "react";
-import { Form, Input, Select, Button } from "antd";
-
-const { Option } = Select;
+import React, { useState } from "react";
+import { Form, Input, InputNumber, Button, AutoComplete } from "antd";
+import { carBrands } from "../..//carBrands";
 
 export interface Step2AutoInputs {
   brand: string;
@@ -18,6 +17,15 @@ export interface Step2AutoProps {
 
 const Step2Auto: React.FC<Step2AutoProps> = ({ onNext, onBack, onCancel }) => {
   const [form] = Form.useForm<Step2AutoInputs>();
+  const [options, setOptions] = useState(carBrands.map(brand => ({ value: brand })));
+  const currentYear = new Date().getFullYear();
+
+  const handleSearch = (searchText: string) => {
+    const filtered = carBrands.filter(
+      brand => brand.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setOptions(filtered.map(brand => ({ value: brand })));
+  };
 
   const onFinish = (values: Step2AutoInputs) => {
     onNext(values);
@@ -30,11 +38,11 @@ const Step2Auto: React.FC<Step2AutoProps> = ({ onNext, onBack, onCancel }) => {
         name="brand"
         rules={[{ required: true, message: "Обязательное поле" }]}
       >
-        <Select placeholder="Выберите марку">
-          <Option value="Toyota">Toyota</Option>
-          <Option value="BMW">BMW</Option>
-          <Option value="Mercedes">Mercedes</Option>
-        </Select>
+        <AutoComplete
+          options={options}
+          onSearch={handleSearch}
+          placeholder="Начните вводить марку"
+        />
       </Form.Item>
 
       <Form.Item
@@ -48,17 +56,28 @@ const Step2Auto: React.FC<Step2AutoProps> = ({ onNext, onBack, onCancel }) => {
       <Form.Item
         label="Год выпуска"
         name="year"
-        rules={[{ required: true, message: "Введите год выпуска" }]}
+        rules={[
+          { required: true, message: "Введите год выпуска" },
+          {
+            type: "number",
+            min: 1900,
+            max: currentYear,
+            message: `Год выпуска должен быть между 1900 и ${currentYear}`,
+          },
+        ]}
       >
-        <Input type="number" />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item
         label="Пробег (км)"
         name="mileage"
-        rules={[{ required: true, message: "Введите число" }]}
+        rules={[
+          { required: true, message: "Введите пробег" },
+          { type: "number", min: 0, message: "Пробег не может быть отрицательным" },
+        ]}
       >
-        <Input type="number" />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item>

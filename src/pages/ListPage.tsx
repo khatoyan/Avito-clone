@@ -17,9 +17,8 @@ const ListPage: React.FC = () => {
   const pageSize = 5;
   const navigate = useNavigate();
 
-  // Используем React Query для загрузки данных
   const { data: adverts = [], isLoading, error } = useQuery<Advert[]>({
-    queryKey: ['adverts'],
+    queryKey: ["adverts"],
     queryFn: getItems,
   });
 
@@ -27,7 +26,6 @@ const ListPage: React.FC = () => {
     message.error("Ошибка при загрузке объявлений");
   }
 
-  // Фильтрация и поиск. Здесь используем useMemo для пересчёта при изменении зависимостей.
   const filteredAdverts = useMemo(() => {
     let filtered = [...adverts];
 
@@ -87,10 +85,17 @@ const ListPage: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    setCurrentPage(1);
   };
 
   const handleFiltersChange = (key: string, value: number) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   const startIndex = (currentPage - 1) * pageSize;
@@ -106,7 +111,7 @@ const ListPage: React.FC = () => {
       >
         Разместить объявление
       </Button>
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      <SearchBar value={searchQuery}onChange={handleSearchChange} />
       <FilterPanel
         category={selectedCategory}
         onCategoryChange={handleCategoryChange}
@@ -117,16 +122,18 @@ const ListPage: React.FC = () => {
         <Spin />
       ) : (
         <>
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {paginatedAdverts.map((advert) => (
               <AdvertCard key={advert.id} advert={advert} />
             ))}
           </div>
-          <CustomPagination
-            currentPage={currentPage}
-            total={filteredAdverts.length}
-            onChange={handlePageChange}
-          />
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+            <CustomPagination
+              currentPage={currentPage}
+              total={filteredAdverts.length}
+              onChange={handlePageChange}
+            />
+          </div>
         </>
       )}
     </div>

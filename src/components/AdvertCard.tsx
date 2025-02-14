@@ -3,6 +3,7 @@ import { Card, Button, Image } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Advert } from "../types/advert";
 import placeholder from "../assets/placeholder.png";
+import { HomeOutlined, CarOutlined, ToolOutlined } from "@ant-design/icons";
 
 interface AdvertCardProps {
   advert: Advert;
@@ -12,6 +13,19 @@ const AdvertCard: React.FC<AdvertCardProps> = ({ advert }) => {
   const navigate = useNavigate();
   const imageUrl = advert.image || placeholder;
 
+  const getCategoryIcon = () => {
+    switch (advert.type) {
+      case "Недвижимость":
+        return <HomeOutlined style={{ marginRight: 5 }} />;
+      case "Авто":
+        return <CarOutlined style={{ marginRight: 5 }} />;
+      case "Услуги":
+        return <ToolOutlined style={{ marginRight: 5 }} />;
+      default:
+        return null;
+    }
+  };
+
   const handleOpen = () => {
     if (advert.id !== undefined) {
       navigate(`/item/${advert.id}`);
@@ -19,7 +33,7 @@ const AdvertCard: React.FC<AdvertCardProps> = ({ advert }) => {
   };
 
   return (
-    <Card style={{ margin: "15px 0", padding: "15px", borderRadius: "10px" }}>
+    <Card style={{ width: "90%", margin: "0", padding: "15px", display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
         <div style={{ width: "150px" }}>
           <Image
@@ -32,7 +46,9 @@ const AdvertCard: React.FC<AdvertCardProps> = ({ advert }) => {
         <div style={{ flex: 1 }}>
           <h3 style={{ marginBottom: "10px" }}>{advert.name}</h3>
           <p style={{ marginBottom: "5px" }}>Локация: {advert.location}</p>
-          <p style={{ marginBottom: "10px" }}>Категория: {advert.type}</p>
+          <p style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+            {getCategoryIcon()} Категория: {advert.type}
+          </p>
           <Button type="primary" onClick={handleOpen}>
             Открыть
           </Button>

@@ -21,13 +21,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         }}
       >
         <div className="logo">
-          <Link to="/list" style={{ color: "#000", textDecoration: "none", fontSize: "20px", fontWeight: "bold" }}>
+          <Link to="/" style={{ color: "#000", textDecoration: "none", fontSize: "20px", fontWeight: "bold" }}>
             <h3 style={{ margin: 0 }}>HandMeOff - Avito клон для избранных!</h3>
           </Link>
         </div>
         <Menu mode="horizontal" defaultSelectedKeys={["1"]} style={{ background: "transparent", color: "#000" }}>
           <Menu.Item key="1">
-            <Link to="/list" style={{ color: "#000" }}>
+            <Link to="/" style={{ color: "#000" }}>
               Каталог
             </Link>
           </Menu.Item>

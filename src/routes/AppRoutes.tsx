@@ -13,7 +13,7 @@ const AppRoutes: React.FC = () => {
       <AppLayout>
         <Routes>
           <Route path="/form" element={<FormPage />} />
-          <Route path="/list" element={<ListPage />} />
+          <Route path="/" element={<ListPage />} />
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/drafts" element={<DraftsPage />} />
           <Route path="*" element={<NotFoundPage />} />

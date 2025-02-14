@@ -35,15 +35,31 @@ export interface FormData {
 
 const STORAGE_KEY = "advertFormDraft";
 
+// Дополнительная валидация корректности значений
 const validateFormData = (data: Partial<FormData>): FormData | null => {
   if (!data.title || !data.description || !data.location || !data.category) {
     message.error("Пожалуйста, заполните все обязательные поля (название, описание, локация, категория)");
     return null;
   }
+
+  const currentYear = new Date().getFullYear();
+
   switch (data.category) {
     case "Недвижимость":
       if (!data.propertyType || data.area == null || data.rooms == null || data.price == null) {
         message.error("Заполните все обязательные поля для недвижимости");
+        return null;
+      }
+      if (data.area <= 0) {
+        message.error("Площадь должна быть положительным числом");
+        return null;
+      }
+      if (data.rooms <= 0) {
+        message.error("Количество комнат должно быть больше нуля");
+        return null;
+      }
+      if (data.price <= 0) {
+        message.error("Цена должна быть положительным числом");
         return null;
       }
       break;
@@ -52,10 +68,29 @@ const validateFormData = (data: Partial<FormData>): FormData | null => {
         message.error("Заполните все обязательные поля для авто");
         return null;
       }
+      if (data.year < 1900 || data.year > currentYear) {
+        message.error(`Год выпуска должен быть в диапазоне от 1900 до ${currentYear}`);
+        return null;
+      }
+      if (data.mileage < 0) {
+        message.error("Пробег не может быть отрицательным");
+        return null;
+      }
       break;
     case "Услуги":
       if (!data.serviceType || data.experience == null || data.cost == null) {
         message.error("Заполните все обязательные поля для услуг");
+        return null;
+      }
+      console.log(data.experience)
+
+      if (data.experience < 0) {
+        console.log(data.experience)
+        message.error("Опыт работы не может быть отрицательным");
+        return null;
+      }
+      if (data.cost <= 0) {
+        message.error("Стоимость должна быть положительным числом");
         return null;
       }
       break;
@@ -77,12 +112,11 @@ const MultiStepForm: React.FC = () => {
   const state = location.state as LocationState;
   const queryClient = useQueryClient();
 
-  // Определяем начальные значения. Если редактирование (state.advert) – преобразуем данные
   const getInitialData = (): Partial<FormData> => {
-    if (state.advert) {
+    if (state && state.advert) {
       const advert = state.advert;
       if (advert.type === "Недвижимость") {
-        return {
+        return{
           title: advert.name,
           description: advert.description,
           location: advert.location,
@@ -109,7 +143,7 @@ const MultiStepForm: React.FC = () => {
         return {
           title: advert.name,
           description: advert.description,
-          location:advert.location,
+          location: advert.location,
           category: "Услуги",
           image: advert.image,
           serviceType: (advert as ServiceItem).serviceType,
@@ -130,18 +164,21 @@ const MultiStepForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [formData, setFormData] = useState<Partial<FormData>>(getInitialData());
 
-  // Если редактируется, можно удалить черновик сразу
+  // При редактировании удаляем черновик, если он есть
   useEffect(() => {
     if (state?.advert) {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, [state]);
 
+  // При создании объявлений сохраняем данные в черновиках,
+  // а при редактировании этот эффект пропускается.
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-  }, [formData]);
+    if (!state?.advert) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData, state]);
 
-  // Если редактирование: используем updateItem, иначе createItem
   const mutation = useMutation<Advert, Error, Advert>({
     mutationFn: (advert: Advert) => {
       return state?.advert && (state.advert.id !== undefined)
@@ -152,7 +189,7 @@ const MultiStepForm: React.FC = () => {
       message.success("Объявление успешно сохранено!");
       localStorage.removeItem(STORAGE_KEY);
       queryClient.invalidateQueries({ queryKey: ["adverts"] });
-      navigate("/list");
+      navigate("/");
     },
     onError: (error) => {
       console.error("Ошибка при отправке объявления:", error);
@@ -160,8 +197,12 @@ const MultiStepForm: React.FC = () => {
     },
   });
 
+  // Если редактирование, то при "Отмене" удаляем черновик
   const handleCancel = () => {
-    navigate("/list");
+    if (state?.advert) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    navigate("/");
   };
 
   const handleNextStep1 = (data: Step1FormInputs) => {
@@ -170,29 +211,33 @@ const MultiStepForm: React.FC = () => {
   };
 
   const handleNextRealEstate = (data: Step2RealEstateInputs) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-    handleSubmit();
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
   };
 
   const handleNextAuto = (data: Step2AutoInputs) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-    handleSubmit();
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
   };
 
   const handleNextServices = (data: Step2ServicesInputs) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-    handleSubmit();
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
   };
 
   const handleBack = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
-  const handleSubmit = () => {
-    const validatedData = validateFormData(formData);
+  const handleSubmit = (dataToSubmit?: Partial<FormData>) => {
+    const data = dataToSubmit || formData;
+    const validatedData = validateFormData(data);
     if (!validatedData) return;
     if (!validatedData.image || typeof validatedData.image !== "string" || !validatedData.image.startsWith("data:")) {
-      validatedData.image = placeholderImage;
+      validatedData.image= placeholderImage;
     }
     let advert: Advert;
     try {

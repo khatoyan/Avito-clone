@@ -39,7 +39,7 @@ const ItemPage: React.FC = () => {
     onSuccess: () => {
       message.success("Объявление удалено");
       queryClient.invalidateQueries({ queryKey: ["adverts"] });
-      navigate("/list");
+      navigate("/");
     },
     onError: (error) => {
       console.error(error);
@@ -142,7 +142,14 @@ const ItemPage: React.FC = () => {
     return (
       <Card
         title={advert.name}
-        cover={<Image alt={advert.name} src={imageUrl} preview={false} />}
+        cover={
+          <Image
+            alt={advert.name}
+            src={imageUrl}
+            preview={false}
+            style={{ width: "100%", height: 300, objectFit: "contain" }}
+          />
+        }
         style={{ maxWidth: 600, margin: "20px auto" }}
       >
         <p>

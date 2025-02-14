@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Select, Button } from "antd";
+import { Form, Select, Button, InputNumber } from "antd";
 
 const { Option } = Select;
 
@@ -32,33 +32,46 @@ const Step2RealEstate: React.FC<Step2RealEstateProps> = ({ onNext, onBack, onCan
       >
         <Select placeholder="Выберите тип">
           <Option value="квартира">Квартира</Option>
-          <Option value="дом">Дом</Option>
+          <Option value="дом">Дом</Option>1
           <Option value="коттедж">Коттедж</Option>
+          <Option value="участок">Участок</Option>
+          <Option value="Коммерческий объект">Коммерческий объект</Option>
+
+          <Option value="другое">Другое</Option>
         </Select>
       </Form.Item>
 
       <Form.Item
         label="Площадь (кв. м)"
         name="area"
-        rules={[{ required: true, message: "Введите площадь" }]}
+        rules={[
+          { required: true, message: "Введите площадь" },
+          { type: "number", min: 0.1, message: "Площадь должна быть больше 0" },
+        ]}
       >
-        <Input type="number" />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item
         label="Количество комнат"
         name="rooms"
-        rules={[{ required: true, message: "Введите количество комнат" }]}
+        rules={[
+          { required: true, message: "Введите количество комнат" },
+          { type: "number", min: 1, message: "Количество комнат должно быть не меньше 1" },
+        ]}
       >
-        <Input type="number" />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item
         label="Цена"
         name="price"
-        rules={[{ required: true, message: "Введите цену" }]}
+        rules={[
+          { required: true, message: "Введите цену" },
+          { type: "number", min: 1, message: "Цена должна быть положительным числом" },
+        ]}
       >
-        <Input type="number" />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item>
