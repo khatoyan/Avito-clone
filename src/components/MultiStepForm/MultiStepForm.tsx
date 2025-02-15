@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Card, message, Spin, Button } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { Card, message, Spin, Button } from "antd";
+
 import Step1Form, { Step1FormInputs } from "./Step1Form";
 import Step2RealEstate, { Step2RealEstateInputs } from "./Step2RealEstate";
 import Step2Auto, { Step2AutoInputs } from "./Step2Auto";
 import Step2Services, { Step2ServicesInputs } from "./Step2Services";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { createItem, updateItem } from "../../api/advertService";
 import { Advert, RealEstateItem, AutoItem, ServiceItem } from "../../types/advert";
 import placeholderImage from "../../assets/placeholder.png";

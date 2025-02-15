@@ -1,0 +1,1624 @@
+Проверь все конфиги и тесты в моем файле. Скажи что исправить приводи полные обновленные коды файлов которые нужно исправить. Я испольщую ts
+
+###src/api/advertService.ts
+import axiosInstance from './axiosInstance';
+import { Advert } from '../types/advert';
+
+// Создание объявления (POST /items)
+export const createItem = async (data: Advert): Promise<Advert> => {
+  const response = await axiosInstance.post<Advert>('/items', data);
+  return response.data;
+};
+
+// Получение всех объявлений (GET /items)
+export const getItems = async (): Promise<Advert[]> => {
+  const response = await axiosInstance.get<Advert[]>('/items');
+  return response.data;
+};
+
+// Получение объявления по ID (GET /items/:id)
+export const getItemById = async (id: number): Promise<Advert> => {
+  const response = await axiosInstance.get<Advert>(`/items/${id}`);
+  return response.data;
+};
+
+// Обновление объявления по ID (PUT /items/:id)
+export const updateItem = async (id: number, data: Partial<Advert>): Promise<Advert> => {
+  const response = await axiosInstance.put<Advert>(`/items/${id}`, data);
+  return response.data;
+};
+
+// Удаление объявления по ID (DELETE /items/:id)
+export const deleteItem = async (id: number): Promise<void> => {
+  await axiosInstance.delete(`/items/${id}`);
+};
+
+###src/api/axiosInstance.ts
+import axios from 'axios';
+
+const axiosInstance = axios.create({
+  baseURL: '',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default axiosInstance;
+
+###src/App.tsx
+import React from 'react';
+import AppRoutes from './routes/AppRoutes';
+
+const App: React.FC = () => {
+  return (
+    <div className="App">
+      <AppRoutes />
+    </div>
+  );
+};
+
+export default App;
+
+###src/carBrands.ts
+export const carBrands: string[] = [
+  "Toyota",
+  "BMW",
+  "Mercedes-Benz",
+  "Audi",
+  "Volkswagen",
+  "Ford",
+  "Chevrolet",
+  "Honda",
+  "Nissan",
+  "Hyundai",
+  "Kia",
+  "Mazda",
+  "Subaru",
+  "Mitsubishi",
+  "Renault",
+  "Peugeot",
+  "Fiat",
+  "Volvo",
+  "Jaguar",
+  "Land Rover",
+  "Porsche",
+  "Lexus",
+  "Acura",
+  "Infiniti",
+  "Suzuki",
+  "Dodge",
+  "Jeep",
+  "Cadillac"
+];
+
+###src/components/AdvertCard.tsx
+import React from "react";
+import { Card, Button, Image } from "antd";
+import { useNavigate } from "react-router-dom";
+import { Advert } from "../types/advert";
+import placeholder from "../assets/placeholder.png";
+import { HomeOutlined, CarOutlined, ToolOutlined } from "@ant-design/icons";
+
+interface AdvertCardProps {
+  advert: Advert;
+}
+
+const AdvertCard: React.FC<AdvertCardProps> = ({ advert }) => {
+  const navigate = useNavigate();
+  const imageUrl = advert.image || placeholder;
+
+  const getCategoryIcon = () => {
+    switch (advert.type) {
+      case "Недвижимость":
+        return <HomeOutlined style={{ marginRight: 5 }} />;
+      case "Авто":
+        return <CarOutlined style={{ marginRight: 5 }} />;
+      case "Услуги":
+        return <ToolOutlined style={{ marginRight: 5 }} />;
+      default:
+        return null;
+    }
+  };
+
+  const handleOpen = () => {
+    if (advert.id !== undefined) {
+      navigate(`/item/${advert.id}`);
+    }
+  };
+
+  return (
+    <Card style={{ width: "90%", margin: "0", padding: "15px", display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: "10px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <div style={{ width: "150px" }}>
+          <Image
+            src={imageUrl}
+            alt={advert.name}
+            preview={false}
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ marginBottom: "10px" }}>{advert.name}</h3>
+          <p style={{ marginBottom: "5px" }}>Локация: {advert.location}</p>
+          <p style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+            {getCategoryIcon()} Категория: {advert.type}
+          </p>
+          <Button type="primary" onClick={handleOpen}>
+            Открыть
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default AdvertCard;
+
+
+###src/components/AppLayout/AppLayout.tsx
+import React from "react";
+import { Layout, Menu } from "antd";
+import { Link } from "react-router-dom";
+
+const { Header, Content, Footer } = Layout;
+
+export interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  return (
+    <Layout style={{ minHeight:"100vh" }}>
+      <Header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "#f0f2f5",
+          padding: "0 20px",
+        }}
+      >
+        <div className="logo">
+          <Link to="/" style={{ color: "#000", textDecoration: "none", fontSize: "20px", fontWeight: "bold" }}>
+            <h3 style={{ margin: 0 }}>HandMeOff - Avito клон для избранных!</h3>
+          </Link>
+        </div>
+        <Menu mode="horizontal" defaultSelectedKeys={["1"]} style={{ background: "transparent", color: "#000" }}>
+          <Menu.Item key="1">
+            <Link to="/" style={{ color: "#000" }}>
+              Каталог
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="2">
+            <Link to="/form" style={{ color: "#000" }}>
+              Создать объявление
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="3">
+            <Link to="/drafts" style={{ color: "#000" }}>
+              Черновики
+            </Link>
+          </Menu.Item>
+        </Menu>
+      </Header>
+
+      <Content style={{ padding: "20px 50px", background: "#fff" }}>{children}</Content>
+
+      <Footer style={{ textAlign: "center" }}>
+        HandMeOff © {new Date().getFullYear()}. Arman Khat.
+      </Footer>
+    </Layout>
+  );
+};
+
+export default AppLayout;
+
+###src/components/FilterPanel.tsx
+import React from "react";
+import { Select, InputNumber } from "antd";
+
+const { Option } = Select;
+
+interface FilterPanelProps {
+  category: string;
+  onCategoryChange: (category: string) => void;
+  filters: Record<string, number>;
+  onFiltersChange: (key: string, value: number) => void;
+}
+
+const FilterPanel: React.FC<FilterPanelProps> = ({
+  category,
+  onCategoryChange,
+  filters,
+  onFiltersChange,
+}) => {
+  const handleChange = (key: string, value: number | null) => {
+    onFiltersChange(key, value ?? 0); // Преобразуем null в 0
+  };
+
+  return (
+    <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+      <Select
+        placeholder="Категория"
+        value={category || undefined}
+        onChange={onCategoryChange}
+        style={{ width: 150 }}
+      >
+        <Option value="">Все</Option>
+        <Option value="Недвижимость">Недвижимость</Option>
+        <Option value="Авто">Авто</Option>
+        <Option value="Услуги">Услуги</Option>
+      </Select>
+
+      {category === "Недвижимость" && (
+        <>
+          <InputNumber
+            placeholder="Мин. площадь"
+            value={filters.minArea}
+            onChange={(value) => handleChange("minArea", value)}
+          />
+          <InputNumber
+            placeholder="Макс. цена"
+            value={filters.maxPrice}
+            onChange={(value) => handleChange("maxPrice", value)}
+          /></>
+        )}
+  
+        {category === "Авто" && (
+          <>
+            <InputNumber
+              placeholder="Мин. год"
+              value={filters.minYear}
+              onChange={(value) => handleChange("minYear", value)}
+            />
+            <InputNumber
+              placeholder="Макс. пробег"
+              value={filters.maxMileage}
+              onChange={(value) => handleChange("maxMileage", value)}
+            />
+          </>
+        )}
+  
+        {category === "Услуги" && (
+          <>
+            <InputNumber
+              placeholder="Мин. опыт (лет)"
+              value={filters.minExperience}
+              onChange={(value) => handleChange("minExperience", value)}
+            />
+          </>
+        )}
+      </div>
+    );
+  };
+  
+  export default FilterPanel;
+
+###src/components/MultiStepForm/MultiStepForm.tsx
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { Card, message, Spin, Button } from "antd";
+
+import Step1Form, { Step1FormInputs } from "./Step1Form";
+import Step2RealEstate, { Step2RealEstateInputs } from "./Step2RealEstate";
+import Step2Auto, { Step2AutoInputs } from "./Step2Auto";
+import Step2Services, { Step2ServicesInputs } from "./Step2Services";
+
+import { createItem, updateItem } from "../../api/advertService";
+import { Advert, RealEstateItem, AutoItem, ServiceItem } from "../../types/advert";
+import placeholderImage from "../../assets/placeholder.png";
+
+export interface FormData {
+  title: string;
+  description: string;
+  location: string;
+  category: "Недвижимость" | "Авто" | "Услуги";
+  image?: string;
+  // Недвижимость
+  propertyType?: string;
+  area?: number;
+  rooms?: number;
+  price?: number;
+  // Авто
+  brand?: string;
+  model?: string;
+  year?: number;
+  mileage?: number;
+  // Услуги
+  serviceType?: string;
+  experience?: number;
+  cost?: number;
+  workSchedule?: string;
+}
+
+const STORAGE_KEY = "advertFormDraft";
+
+// Дополнительная валидация корректности значений
+const validateFormData = (data: Partial<FormData>): FormData | null => {
+  if (!data.title || !data.description || !data.location || !data.category) {
+    message.error("Пожалуйста, заполните все обязательные поля (название, описание, локация, категория)");
+    return null;
+  }
+
+  const currentYear = new Date().getFullYear();
+
+  switch (data.category) {
+    case "Недвижимость":
+      if (!data.propertyType || data.area == null || data.rooms == null || data.price == null) {
+        message.error("Заполните все обязательные поля для недвижимости");
+        return null;
+      }
+      if (data.area <= 0) {
+        message.error("Площадь должна быть положительным числом");
+        return null;
+      }
+      if (data.rooms <= 0) {
+        message.error("Количество комнат должно быть больше нуля");
+        return null;
+      }
+      if (data.price <= 0) {
+        message.error("Цена должна быть положительным числом");
+        return null;
+      }
+      break;
+    case "Авто":
+      if (!data.brand || !data.model || data.year == null || data.mileage == null) {
+        message.error("Заполните все обязательные поля для авто");
+        return null;
+      }
+      if (data.year < 1900 || data.year > currentYear) {
+        message.error(`Год выпуска должен быть в диапазоне от 1900 до ${currentYear}`);
+        return null;
+      }
+      if (data.mileage < 0) {
+        message.error("Пробег не может быть отрицательным");
+        return null;
+      }
+      break;
+    case "Услуги":
+      if (!data.serviceType || data.experience == null || data.cost == null) {
+        message.error("Заполните все обязательные поля для услуг");
+        return null;
+      }
+      console.log(data.experience)
+
+      if (data.experience < 0) {
+        console.log(data.experience)
+        message.error("Опыт работы не может быть отрицательным");
+        return null;
+      }
+      if (data.cost <= 0) {
+        message.error("Стоимость должна быть положительным числом");
+        return null;
+      }
+      break;
+    default:
+      message.error("Неверная категория");
+      return null;
+  }
+  return data as FormData;
+};
+
+interface LocationState {
+  advert?: Advert;
+  advertDraft?: Partial<FormData>;
+}
+
+const MultiStepForm: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as LocationState;
+  const queryClient = useQueryClient();
+
+  const getInitialData = (): Partial<FormData> => {
+    if (state && state.advert) {
+      const advert = state.advert;
+      if (advert.type === "Недвижимость") {
+        return{
+          title: advert.name,
+          description: advert.description,
+          location: advert.location,
+          category: "Недвижимость",
+          image: advert.image,
+          propertyType: (advert as RealEstateItem).propertyType,
+          area: (advert as RealEstateItem).area,
+          rooms: (advert as RealEstateItem).rooms,
+          price: (advert as RealEstateItem).price,
+        };
+      } else if (advert.type === "Авто") {
+        return {
+          title: advert.name,
+          description: advert.description,
+          location: advert.location,
+          category: "Авто",
+          image: advert.image,
+          brand: (advert as AutoItem).brand,
+          model: (advert as AutoItem).model,
+          year: (advert as AutoItem).year,
+          mileage: (advert as AutoItem).mileage,
+        };
+      } else if (advert.type === "Услуги") {
+        return {
+          title: advert.name,
+          description: advert.description,
+          location: advert.location,
+          category: "Услуги",
+          image: advert.image,
+          serviceType: (advert as ServiceItem).serviceType,
+          experience: (advert as ServiceItem).experience,
+          cost: (advert as ServiceItem).cost,
+          workSchedule: (advert as ServiceItem).workSchedule,
+        };
+      }
+    } else if (state?.advertDraft) {
+      return state.advertDraft;
+    } else {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      return savedData ? JSON.parse(savedData) : {};
+    }
+    return {};
+  };
+
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [formData, setFormData] = useState<Partial<FormData>>(getInitialData());
+
+  // При редактировании удаляем черновик, если он есть
+  useEffect(() => {
+    if (state?.advert) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [state]);
+
+  // При создании объявлений сохраняем данные в черновиках,
+  // а при редактировании этот эффект пропускается.
+  useEffect(() => {
+    if (!state?.advert) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData, state]);
+
+  const mutation = useMutation<Advert, Error, Advert>({
+    mutationFn: (advert: Advert) => {
+      return state?.advert && (state.advert.id !== undefined)
+        ? updateItem(state.advert.id, advert)
+        : createItem(advert);
+    },
+    onSuccess: () => {
+      message.success("Объявление успешно сохранено!");
+      localStorage.removeItem(STORAGE_KEY);
+      queryClient.invalidateQueries({ queryKey: ["adverts"] });
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error("Ошибка при отправке объявления:", error);
+      message.error(error.message || "Ошибка при сохранении объявления");
+    },
+  });
+
+  // Если редактирование, то при "Отмене" удаляем черновик
+  const handleCancel = () => {
+    if (state?.advert) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    navigate("/");
+  };
+
+  const handleNextStep1 = (data: Step1FormInputs) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+    setCurrentStep(1);
+  };
+
+  const handleNextRealEstate = (data: Step2RealEstateInputs) => {
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
+  };
+
+  const handleNextAuto = (data: Step2AutoInputs) => {
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
+  };
+
+  const handleNextServices = (data: Step2ServicesInputs) => {
+    const mergedData = { ...formData, ...data };
+    setFormData(mergedData);
+    handleSubmit(mergedData);
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = (dataToSubmit?: Partial<FormData>) => {
+    const data = dataToSubmit || formData;
+    const validatedData = validateFormData(data);
+    if (!validatedData) return;
+    if (!validatedData.image || typeof validatedData.image !== "string" || !validatedData.image.startsWith("data:")) {
+      validatedData.image= placeholderImage;
+    }
+    let advert: Advert;
+    try {
+      switch (validatedData.category) {
+        case "Недвижимость":
+          advert = {
+            name: validatedData.title,
+            description: validatedData.description,
+            location: validatedData.location,
+            type: "Недвижимость",
+            propertyType: validatedData.propertyType!,
+            area: Number(validatedData.area),
+            rooms: Number(validatedData.rooms),
+            price: Number(validatedData.price),
+            image: validatedData.image,
+          } as RealEstateItem;
+          break;
+        case "Авто":
+          advert = {
+            name: validatedData.title,
+            description: validatedData.description,
+            location: validatedData.location,
+            type: "Авто",
+            brand: validatedData.brand!,
+            model: validatedData.model!,
+            year: Number(validatedData.year),
+            mileage: Number(validatedData.mileage),
+            image: validatedData.image,
+          } as AutoItem;
+          break;
+        case "Услуги":
+          advert = {
+            name: validatedData.title,
+            description: validatedData.description,
+            location: validatedData.location,
+            type: "Услуги",
+            serviceType: validatedData.serviceType!,
+            experience: Number(validatedData.experience),
+            cost: Number(validatedData.cost),
+            workSchedule: validatedData.workSchedule,
+            image: validatedData.image,
+          } as ServiceItem;
+          break;
+        default:
+          throw new Error("Неверная категория");
+      }
+      mutation.mutate(advert);
+    } catch (error: unknown) {
+      console.error("Ошибка при подготовке данных:", error);
+      message.error("Ошибка при подготовке данных");
+    }
+  };
+
+  const renderStep = () => {
+    if (currentStep === 0) {
+      return (
+        <Step1Form
+          initialValues={formData as Step1FormInputs}
+          onNext={handleNextStep1}
+          onCancel={handleCancel}
+        />
+      );
+    } else if (currentStep === 1) {
+      if (formData.category === "Недвижимость") {
+        return (
+          <Step2RealEstate
+            onNext={handleNextRealEstate}
+            onBack={handleBack}
+            onCancel={handleCancel}
+          />
+        );
+      } else if (formData.category === "Авто") {
+        return (
+          <Step2Auto
+            onNext={handleNextAuto}
+            onBack={handleBack}
+            onCancel={handleCancel}
+          />
+        );
+      } else if (formData.category === "Услуги") {
+        return (
+          <Step2Services
+            onNext={handleNextServices}
+            onBack={handleBack}
+            onCancel={handleCancel}
+          />
+        );
+      }
+    }
+    return null;
+  };
+
+  return (
+    <Card title={state?.advert ? "Редактирование объявления" : "Объявление"} extra={<Button type="text" onClick={handleCancel}>×</Button>}>
+      {mutation.status === "pending" ? <Spin /> : renderStep()}
+    </Card>
+  );
+};
+
+export default MultiStepForm;
+
+###src/components/MultiStepForm/Step1Form.tsx
+import React from "react";
+import { Form, Input, Select, Button, Upload, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+
+const { Option } = Select;
+
+export interface Step1FormInputs {
+  title: string;
+  description: string;
+  location: string;
+  category: "Недвижимость" | "Авто" | "Услуги";
+  image?: string;
+}
+
+interface Step1FormProps {
+  onNext: (data: Step1FormInputs) => void;
+  onCancel: () => void;
+  initialValues?: Step1FormInputs;
+}
+
+const Step1Form: React.FC<Step1FormProps> = ({ onNext, onCancel, initialValues }) => {
+  const [form] = Form.useForm<Step1FormInputs>();
+
+  React.useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues);
+    }
+  }, [initialValues, form]);
+
+  const [preview, setPreview] = React.useState<string | null>(initialValues?.image || null);
+
+  // Функция для сжатия изображения через canvas
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const img = new Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 600;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = height * (MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject("Canvas контекст недоступен");
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.5);
+          resolve(dataUrl);
+        };
+        img.onerror = (error) => reject(error);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Перед загрузкой изображения сжимаем его
+  const beforeUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      message.error("Можно загрузить только изображение!");
+      return Upload.LIST_IGNORE;
+    }
+    try {
+      const compressedBase64 = await compressImage(file);
+      form.setFieldValue("image", compressedBase64);
+      setPreview(compressedBase64);
+    } catch (error: unknown) {
+      console.error(error);
+      message.error("Ошибка обработки изображения");
+    }
+    return false; // предотвратить автоматическую загрузку
+  };
+
+  const onFinish = (values: Step1FormInputs) => {
+    onNext(values);
+  };
+
+  return (
+    <Form form={form} onFinish={onFinish} layout="vertical">
+      <Form.Item label="Название" name="title" rules={[{ required: true, message: "Обязательное поле" }]}>
+        <Input />
+      </Form.Item>
+      <Form.Item label="Описание" name="description" rules={[{ required: true, message: "Обязательное поле" }]}>
+        <Input.TextArea rows={4} />
+      </Form.Item>
+      <Form.Item label="Локация" name="location" rules={[{ required: true, message: "Обязательное поле" }]}>
+        <Input />
+      </Form.Item>
+      <Form.Item label="Категория" name="category" rules={[{ required: true, message: "Выберите категорию" }]}>
+        <Select placeholder="Выберите категорию">
+          <Option value="Недвижимость">Недвижимость</Option>
+          <Option value="Авто">Авто</Option>
+          <Option value="Услуги">Услуги</Option>
+        </Select>
+      </Form.Item>
+
+      <Form.Item name="image" style={{ display: "none" }}><Input />
+      </Form.Item>
+      <Form.Item label="Фото (необязательно)">
+        <Upload beforeUpload={beforeUpload} maxCount={1} showUploadList={false}>
+          <Button icon={<UploadOutlined />}>Загрузить изображение</Button>
+        </Upload>
+      </Form.Item>
+      {preview && (
+        <Form.Item>
+          <img src={preview} alt="Превью" style={{ maxWidth: "100%", maxHeight: 200 }} />
+        </Form.Item>
+      )}
+      <Form.Item>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button onClick={onCancel}>Отмена</Button>
+          <div>
+            <Button onClick={() => form.resetFields()} style={{ marginRight: 10 }}>
+              Очистить форму
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Далее
+            </Button>
+          </div>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export default Step1Form;
+
+###src/components/MultiStepForm/Step2Auto.tsx
+import React, { useState } from "react";
+import { Form, Input, InputNumber, Button, AutoComplete } from "antd";
+import { carBrands } from "../../carBrands";
+
+export interface Step2AutoInputs {
+  brand: string;
+  model: string;
+  year: number;
+  mileage: number;
+}
+
+export interface Step2AutoProps {
+  onNext: (data: Step2AutoInputs) => void;
+  onBack: () => void;
+  onCancel: () => void;
+}
+
+const Step2Auto: React.FC<Step2AutoProps> = ({ onNext, onBack, onCancel }) => {
+  const [form] = Form.useForm<Step2AutoInputs>();
+  const [options, setOptions] = useState(carBrands.map(brand => ({ value: brand })));
+  const currentYear = new Date().getFullYear();
+
+  const handleSearch = (searchText: string) => {
+    const filtered = carBrands.filter(
+      brand => brand.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setOptions(filtered.map(brand => ({ value: brand })));
+  };
+
+  const onFinish = (values: Step2AutoInputs) => {
+    onNext(values);
+  };
+
+  return (
+    <Form form={form} onFinish={onFinish} layout="vertical">
+      <Form.Item
+        label="Марка"
+        name="brand"
+        rules={[{ required: true, message: "Обязательное поле" }]}
+      >
+        <AutoComplete
+          options={options}
+          onSearch={handleSearch}
+          placeholder="Начните вводить марку"
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Модель"
+        name="model"
+        rules={[{ required: true, message: "Введите модель" }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item
+        label="Год выпуска"
+        name="year"
+        rules={[
+          { required: true, message: "Введите год выпуска" },
+          {
+            type: "number",
+            min: 1900,
+            max: currentYear,
+            message: `Год выпуска должен быть между 1900 и ${currentYear}`,
+          },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item
+        label="Пробег (км)"
+        name="mileage"
+        rules={[
+          { required: true, message: "Введите пробег" },
+          { type: "number", min: 0, message: "Пробег не может быть отрицательным" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button onClick={onBack}>Назад</Button>
+          <div>
+            <Button onClick={onCancel} style={{ marginRight: 10 }}>
+              Отмена
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Далее
+            </Button>
+          </div>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export default Step2Auto;
+
+###src/components/MultiStepForm/Step2RealEstate.tsx
+import React from "react";
+import { Form, Select, Button, InputNumber } from "antd";
+
+const { Option } = Select;
+
+export interface Step2RealEstateInputs {
+  propertyType: string;
+  area: number;
+  rooms: number;
+  price: number;
+}
+
+export interface Step2RealEstateProps {
+  onNext: (data: Step2RealEstateInputs) => void;
+  onBack: () => void;
+  onCancel: () => void;
+}
+
+const Step2RealEstate: React.FC<Step2RealEstateProps> = ({ onNext, onBack, onCancel }) => {
+  const [form] = Form.useForm<Step2RealEstateInputs>();
+
+  const onFinish = (values: Step2RealEstateInputs) => {
+    onNext(values);
+  };
+
+  return (
+    <Form form={form} onFinish={onFinish} layout="vertical">
+      <Form.Item
+        label="Тип недвижимости"
+        name="propertyType"
+        rules={[{ required: true, message: "Обязательное поле" }]}
+      >
+        <Select placeholder="Выберите тип">
+          <Option value="квартира">Квартира</Option>
+          <Option value="дом">Дом</Option>
+          <Option value="коттедж">Коттедж</Option>
+          <Option value="участок">Участок</Option>
+          <Option value="Коммерческий объект">Коммерческий объект</Option>
+
+          <Option value="другое">Другое</Option>
+        </Select>
+      </Form.Item>
+
+      <Form.Item
+        label="Площадь (кв. м)"
+        name="area"
+        rules={[
+          { required: true, message: "Введите площадь" },
+          { type: "number", min: 0.1, message: "Площадь должна быть больше 0" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item
+        label="Количество комнат"
+        name="rooms"
+        rules={[
+          { required: true, message: "Введите количество комнат" },
+          { type: "number", min: 1, message: "Количество комнат должно быть не меньше 1" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item
+        label="Цена"
+        name="price"
+        rules={[
+          { required: true, message: "Введите цену" },
+          { type: "number", min: 1, message: "Цена должна быть положительным числом" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button onClick={onBack}>Назад</Button>
+          <div>
+            <Button onClick={onCancel} style={{ marginRight: 10 }}>
+              Отмена
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Далее
+            </Button>
+          </div>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export default Step2RealEstate;
+
+
+###src/components/MultiStepForm/Step2Services.tsx
+import React from "react";
+import { Form, Select, Button, Input, InputNumber } from "antd";
+
+const { Option } = Select;
+
+export interface Step2ServicesInputs {
+  serviceType: string;
+  experience: number;
+  cost: number;
+  workSchedule?: string;
+}
+
+export interface Step2ServicesProps {
+  onNext: (data: Step2ServicesInputs) => void;
+  onBack: () => void;
+  onCancel: () => void;
+}
+
+const Step2Services: React.FC<Step2ServicesProps> = ({ onNext, onBack, onCancel }) => {
+  const [form] = Form.useForm<Step2ServicesInputs>();
+
+  const onFinish = (values: Step2ServicesInputs) => {
+    onNext(values);
+  };
+
+  return (
+    <Form form={form} onFinish={onFinish} layout="vertical">
+      <Form.Item
+        label="Тип услуги"
+        name="serviceType"
+        rules={[{ required: true, message: "Обязательное поле" }]}
+      >
+        <Select placeholder="Выберите тип">
+          <Option value="ремонт">Ремонт</Option>
+          <Option value="уборка">Уборка</Option>
+          <Option value="доставка">Доставка</Option>
+          <Option value="другое">Другое</Option>
+        </Select>
+      </Form.Item>
+
+      <Form.Item
+        label="Опыт работы (лет)"
+        name="experience"
+        rules={[
+          { required: true, message: "Введите опыт работы" },
+          { type: "number", min: 0, message: "Опыт работы не может быть отрицательным" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item
+        label="Стоимость"
+        name="cost"
+        rules={[
+          { required: true, message: "Введите стоимость" },
+          { type: "number", min: 1, message: "Стоимость должна быть положительным числом" },
+        ]}
+      >
+        <InputNumber style={{ width: "100%" }} />
+      </Form.Item>
+
+      <Form.Item label="График работы (опционально)" name="workSchedule">
+        <Input />
+      </Form.Item>
+
+      <Form.Item>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Button onClick={onBack}>Назад</Button>
+          <div>
+            <Button onClick={onCancel} style={{ marginRight: 10 }}>
+              Отмена
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Далее
+            </Button>
+          </div>
+        </div>
+      </Form.Item>
+    </Form>
+  );
+};
+
+export default Step2Services;
+
+###src/components/Pagination.tsx
+import React from "react";
+import { Pagination } from "antd";
+
+interface PaginationProps {
+  currentPage: number;
+  total: number;
+  onChange: (page: number) => void;
+}
+
+const CustomPagination: React.FC<PaginationProps> = ({ currentPage, total, onChange }) => {
+  return (
+    <Pagination
+      current={currentPage}
+      total={total}
+      pageSize={5}
+      onChange={onChange}
+      style={{ textAlign: "center", marginTop: "20px" }}
+    />
+  );
+};
+
+export default CustomPagination;
+
+
+###src/components/SearchBar.tsx
+import React from "react";
+import { Input } from "antd";
+
+interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ value, onChange }) => {
+  return (
+    <Input
+      placeholder="Поиск объявлений..."
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{ marginBottom: "20px", width: "100%" }}
+    />
+  );
+};
+
+export default SearchBar;
+
+
+###src/declarations.d.ts
+declare module "*.png" {
+    const value: string;
+    export default value;
+  }
+
+declare module "*.css";
+
+// Добавил для корректной обработки изображений и подключения стилей помимо antd
+
+###src/main.tsx
+// src/main.tsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import './index.css'
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </StrictMode>,
+);
+
+
+###src/pages/DraftsPage.tsx
+import React, { useState, useEffect } from "react";
+import { Card, Button, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { FormData } from "../components/MultiStepForm/MultiStepForm";
+
+const STORAGE_KEY = "advertFormDraft";
+
+const DraftsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [draftData, setDraftData] = useState<Partial<FormData> | null>(null);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEY);
+    if (savedDraft) {
+      setDraftData(JSON.parse(savedDraft) as Partial<FormData>);
+    }
+  }, []);
+
+  const handleEditDraft = () => {
+    if (draftData) {
+      navigate("/form", { state: { advertDraft: draftData } });
+    }
+  };
+
+  const handleClearDraft = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setDraftData(null);
+    message.success("Черновик очищен");
+  };
+
+  return (
+    <Card
+      title="Черновики"
+      style={{ maxWidth: 600, margin: "20px auto", padding: "20px", borderRadius: "10px" }}
+    >
+      {draftData ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <p>
+            <strong>Название:</strong> {draftData.title || "-"}
+          </p>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Button type="primary" onClick={handleEditDraft}>
+              Восстановить черновик
+            </Button>
+            <Button danger onClick={handleClearDraft}>
+              Очистить черновик
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p>Нет сохраненных черновиков.</p>
+      )}
+    </Card>
+  );
+};
+
+export default DraftsPage;
+
+###src/pages/FormPage.tsx
+import React from "react";
+import MultiStepForm from "../components/MultiStepForm/MultiStepForm";
+import { Card } from "antd";
+
+const FormPage: React.FC = () => {
+  return (
+    <Card title="Размещение объявления" style={{ maxWidth: 600, margin: "20px auto" }}>
+      <MultiStepForm />
+    </Card>
+  );
+};
+
+export default FormPage;
+
+
+###src/pages/ItemPage.tsx
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getItemById, deleteItem } from "../api/advertService";
+import { Advert, RealEstateItem, AutoItem, ServiceItem } from "../types/advert";
+import { Card, Button, Spin, message, Image, Modal } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import placeholder from "../assets/placeholder.png";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const ItemPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [advert, setAdvert] = useState<Advert | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const fetchAdvert = async (advertId: number) => {
+    try {
+      setLoading(true);
+      const data = await getItemById(advertId);
+      setAdvert(data);
+    } catch (error) {
+      console.error(error);
+      message.error("Ошибка при загрузке объявления");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      const advertId = parseInt(id, 10);
+      fetchAdvert(advertId);
+    }
+  }, [id]);
+
+  const deleteMutation = useMutation<void, Error, number>({
+    mutationFn: deleteItem,
+    onSuccess: () => {
+      message.success("Объявление удалено");
+      queryClient.invalidateQueries({ queryKey: ["adverts"] });
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error(error);
+      message.error("Ошибка при удалении объявления");
+    },
+  });
+
+  const handleEdit = () => {
+    if (advert) {
+      navigate("/form", { state: { advert } });
+    }
+  };
+
+  const showDeleteConfirm = () => {
+    Modal.confirm({
+      title: "Вы уверены, что хотите удалить это объявление?",
+      icon: <ExclamationCircleOutlined />,
+      okText: "Да",
+      okType: "danger",
+      cancelText: "Отмена",
+      onOk() {
+        if (advert && advert.id !== undefined) {
+          deleteMutation.mutate(advert.id);
+        }
+      },
+    });
+  };
+
+  if (loading || !advert) {
+    return <Spin />;
+  }
+
+  const renderAdvertDetails = () => {
+    switch (advert.type) {
+      case "Недвижимость": {
+        const realEstate = advert as RealEstateItem;
+        return (
+          <>
+            <p>
+              <strong>Тип недвижимости:</strong> {realEstate.propertyType}
+            </p>
+            <p>
+              <strong>Площадь:</strong> {realEstate.area} кв. м
+            </p>
+            <p>
+              <strong>Количество комнат:</strong> {realEstate.rooms}
+            </p>
+            <p>
+              <strong>Цена:</strong> {realEstate.price}
+            </p>
+          </>
+        );
+      }
+      case "Авто": {
+        const auto = advert as AutoItem;
+        return (
+          <>
+            <p>
+              <strong>Марка:</strong> {auto.brand}
+            </p>
+            <p>
+              <strong>Модель:</strong> {auto.model}
+            </p>
+            <p>
+              <strong>Год выпуска:</strong> {auto.year}
+            </p>
+            <p>
+              <strong>Пробег:</strong> {auto.mileage}
+            </p>
+          </>
+        );
+      }
+      case "Услуги": {
+        const service = advert as ServiceItem;
+        return (
+          <>
+            <p>
+              <strong>Тип услуги:</strong> {service.serviceType}
+            </p>
+            <p>
+              <strong>Опыт работы:</strong> {service.experience} лет
+            </p>
+            <p>
+              <strong>Стоимость:</strong> {service.cost}
+            </p>
+            {service.workSchedule && (
+              <p>
+                <strong>График работы:</strong> {service.workSchedule}
+              </p>
+            )}</>
+          );
+        }
+        default:
+          return null;
+      }
+    };
+  
+    const imageUrl = advert.image || placeholder;
+  
+    return (
+      <Card
+        title={advert.name}
+        cover={
+          <Image
+            alt={advert.name}
+            src={imageUrl}
+            preview={false}
+            style={{ width: "100%", height: 300, objectFit: "contain" }}
+          />
+        }
+        style={{ maxWidth: 600, margin: "20px auto" }}
+      >
+        <p>
+          <strong>Описание:</strong> {advert.description}
+        </p>
+        <p>
+          <strong>Локация:</strong> {advert.location}
+        </p>
+        <p>
+          <strong>Категория:</strong> {advert.type}
+        </p>
+        {renderAdvertDetails()}
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
+          <Button type="primary" onClick={handleEdit}>
+            Редактировать
+          </Button>
+          <Button danger onClick={showDeleteConfirm}>
+            Удалить
+          </Button>
+        </div>
+      </Card>
+    );
+  };
+  
+  export default ItemPage;
+
+###src/pages/ListPage.tsx
+import React, { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getItems } from "../api/advertService";
+import { Advert, RealEstateItem, AutoItem, ServiceItem } from "../types/advert";
+import AdvertCard from "../components/AdvertCard";
+import SearchBar from "../components/SearchBar";
+import FilterPanel from "../components/FilterPanel";
+import CustomPagination from "../components/Pagination";
+import { Button, Spin, message } from "antd";
+import { useNavigate } from "react-router-dom";
+
+const ListPage: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [filters, setFilters] = useState<Record<string, number>>({});
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 5;
+  const navigate = useNavigate();
+
+  const { data: adverts = [], isLoading, error } = useQuery<Advert[]>({
+    queryKey: ["adverts"],
+    queryFn: getItems,
+  });
+
+  if (error) {
+    message.error("Ошибка при загрузке объявлений");
+  }
+
+  const filteredAdverts = useMemo(() => {
+    let filtered = [...adverts];
+
+    // Поиск по названию
+    if (searchQuery) {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Фильтрация по выбранной категории
+    if (selectedCategory) {
+      filtered = filtered.filter(
+        (item) => item.type.toLowerCase() === selectedCategory.toLowerCase()
+      );
+
+      // Дополнительные фильтры для каждой категории
+      if (selectedCategory === "Недвижимость") {
+        if (filters.minArea !== undefined) {
+          filtered = filtered.filter(
+            (item) => (item as RealEstateItem).area >= filters.minArea
+          );
+        }
+        if (filters.maxPrice !== undefined) {
+          filtered = filtered.filter(
+            (item) => (item as RealEstateItem).price <= filters.maxPrice
+          );
+        }
+      }
+      if (selectedCategory === "Авто") {
+        if (filters.minYear !== undefined) {
+          filtered = filtered.filter(
+            (item) => (item as AutoItem).year >= filters.minYear
+          );
+        }
+        if (filters.maxMileage !== undefined) {
+          filtered = filtered.filter(
+            (item) => (item as AutoItem).mileage <= filters.maxMileage
+          );
+        }
+      }
+      if (selectedCategory === "Услуги") {
+        if (filters.minExperience !== undefined) {
+          filtered = filtered.filter(
+            (item) => (item as ServiceItem).experience >= filters.minExperience
+          );
+        }
+      }
+    }
+
+    return filtered;
+  }, [adverts, searchQuery, selectedCategory, filters]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handleFiltersChange = (key: string, value: number) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedAdverts = filteredAdverts.slice(startIndex, startIndex + pageSize);
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Список объявлений</h1>
+      <Button
+        type="primary"
+        onClick={() => navigate("/form")}
+        style={{ marginBottom: "20px" }}
+      >
+        Разместить объявление
+      </Button>
+      <SearchBar value={searchQuery}onChange={handleSearchChange} />
+      <FilterPanel
+        category={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+      />
+      {isLoading ? (
+        <Spin />
+      ) : (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {paginatedAdverts.map((advert) => (
+              <AdvertCard key={advert.id} advert={advert} />
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+            <CustomPagination
+              currentPage={currentPage}
+              total={filteredAdverts.length}
+              onChange={handlePageChange}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default ListPage;
+
+###src/pages/NotFoundPage.tsx
+import React from 'react'
+
+const NotFoundPage: React.FC = () => (
+    <div>
+      <h1>Страница не найдена</h1>
+    </div>
+  );
+
+  export default NotFoundPage;
+
+###src/routes/AppRoutes.tsx
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AppLayout from "../components/AppLayout/AppLayout";
+import FormPage from "../pages/FormPage";
+import ListPage from "../pages/ListPage";
+import ItemPage from "../pages/ItemPage";
+import DraftsPage from "../pages/DraftsPage";
+import NotFoundPage from "../pages/NotFoundPage";
+
+const AppRoutes: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/list" replace />} />
+          <Route path="/form" element={<FormPage />} />
+          <Route path="/list" element={<ListPage />} />
+          <Route path="/item/:id" element={<ItemPage />} />
+          <Route path="/drafts" element={<DraftsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AppLayout>
+    </BrowserRouter>
+  );
+};
+
+export default AppRoutes;
+
+###src/types/advert.ts
+export type AdvertType = "Недвижимость" | "Авто" | "Услуги";
+
+// Общие поля объявления
+export interface BaseAdvert {
+  id?: number; // опционально при создании, сервер генерирует id
+  name: string;
+  description: string;
+  location: string;
+  type: AdvertType;
+  image?: string;
+}
+
+// Объявление для недвижимости
+export interface RealEstateItem extends BaseAdvert {
+  type: "Недвижимость";
+  propertyType: string;
+  area: number;
+  rooms: number;
+  price: number;
+}
+
+// Объявление для авто
+export interface AutoItem extends BaseAdvert {
+  type: "Авто";
+  brand: string;
+  model: string;
+  year: number;
+  mileage: number;
+}
+
+// Объявление для услуг
+export interface ServiceItem extends BaseAdvert {
+  type: "Услуги";
+  serviceType: string;
+  experience: number;
+  cost: number;
+  workSchedule?: string;
+}
+
+// Объединяющий тип объявления
+export type Advert = RealEstateItem | AutoItem | ServiceItem;
+

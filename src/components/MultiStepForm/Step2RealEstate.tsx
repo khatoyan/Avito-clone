@@ -32,7 +32,7 @@ const Step2RealEstate: React.FC<Step2RealEstateProps> = ({ onNext, onBack, onCan
       >
         <Select placeholder="Выберите тип">
           <Option value="квартира">Квартира</Option>
-          <Option value="дом">Дом</Option>1
+          <Option value="дом">Дом</Option>
           <Option value="коттедж">Коттедж</Option>
           <Option value="участок">Участок</Option>
           <Option value="Коммерческий объект">Коммерческий объект</Option>

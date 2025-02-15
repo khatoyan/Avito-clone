@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Input, InputNumber, Button, AutoComplete } from "antd";
-import { carBrands } from "../..//carBrands";
+import { carBrands } from "../../carBrands";
 
 export interface Step2AutoInputs {
   brand: string;
